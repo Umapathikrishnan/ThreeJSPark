@@ -16,7 +16,6 @@
     </script>
   </head>
   <body>
-    <canvas id="bg" width="90vh" height="90vh"></canvas>
     <!-- create a simple modal with text -->
     <div id="modal" class="hidden funBox">
       <div class="modal-header">
@@ -35,26 +34,31 @@
         <li>Tap & drag to rotate the camera</li>
       </ul>
       <div class="chip-container">
-        <a href="https://umapathik.vercel.app/" target="_blank"
-          >🌐 Visit My Website</a
-        >
+        <a href="https://umapathik.vercel.app/" target="_blank" class="chip">
+          <span class="chip-icon">🌐</span>
+          <span class="chip-text">Visit My Website</span>
+        </a>
+
         <a
           href="https://github.com/Umapathikrishnan/ThreeJSPark"
           target="_blank"
-          >📦 View Project on GitHub</a
+          class="chip"
         >
+          <span class="chip-icon">📦</span>
+          <span class="chip-text">View Project on GitHub</span>
+        </a>
       </div>
     </div>
     <div id="mobileControls" class="mobile-controls hidden">
       <div class="row">
-        <button id="btnUp">⬆️</button>
+        <button id="btnUp">⬆</button>
       </div>
       <div class="row">
-        <button id="btnLeft">⬅️</button>
-        <button id="btnRight">➡️</button>
+        <button id="btnLeft">⬅</button>
+        <button id="btnRight" class="rotate-90">⬆</button>
       </div>
       <div class="row">
-        <button id="btnDown">⬇️</button>
+        <button id="btnDown">⬇</button>
       </div>
     </div>
 

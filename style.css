@@ -21,6 +21,7 @@
   height: fit-content;
   border-radius: 5%;
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+  z-index: 9000;
 }
 .modal-header {
   display: flex;
@@ -89,20 +90,26 @@
 .closeBtn {
   cursor: pointer;
   display: inline-block;
-  background: #ffc7a7;
+  background: transparent;
+  border: 3px solid #fd638d;
   color: white;
   padding: 6px 12px;
   border-radius: 10%;
-  border: none;
+  /* border: none; */
   font-weight: bold;
+  display: flex;
+  align-items: center;
 }
-
+.closeBtn:hover {
+  background: #ffc7a7;
+}
 .chip-container {
   display: flex;
   align-items: center;
+  flex-direction: column;
   justify-content: space-around;
   gap: 10px;
-  padding: 10px 20px;
+  padding: 10px;
 }
 #helper {
   text-align: left;
@@ -143,13 +150,21 @@
 
 .mobile-controls .row {
   display: flex;
-  gap: 8px;
+  gap: 44px;
+}
+.rotate-90 {
+  transform: rotate(90deg); /* rotate button */
+  display: inline-block;
 }
 
+.rotate-90::first-letter {
+  transform: rotate(-90deg); /* rotate emoji back */
+  display: inline-block;
+}
 .mobile-controls button {
   width: 60px;
   height: 60px;
-  background: #000000cc;
+  background: #0000003a;
   color: white;
   font-size: 26px;
   border: none;
@@ -181,4 +196,33 @@
   cursor: pointer;
   z-index: 3000;
   user-select: none;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+
+  border-radius: 20px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+.chip-icon {
+  margin-right: 8px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+}
+
+.chip-text {
+  font-size: 15px;
 }

@@ -37,7 +37,6 @@ camera.position.x = -13;
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
   alpha: true,
-  canvas: document.querySelector("#bg"),
 });
 renderer.setSize(size.width, size.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
