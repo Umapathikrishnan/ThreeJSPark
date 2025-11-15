@@ -18,9 +18,44 @@
   <body>
     <canvas id="bg" width="90vh" height="90vh"></canvas>
     <!-- create a simple modal with text -->
-    <div id="modal" class="hidden" style="z-index: 1111">
-      <span id="closeModal">&times;</span>
-      <p>You clicked the sphere!</p>
+    <div id="modal" class="hidden funBox">
+      <div class="modal-header">
+        <h2>🎮 Welcome Explorer!</h2>
+        <span id="closeModal" class="closeBtn">❌</span>
+      </div>
+
+      <p>
+        A mini 3D park environment created with <strong>ThreeJS</strong>, with
+        all assets crafted in <strong>Blender</strong>.
+      </p>
+      <ul id="helper">
+        <li>Use <b>W / A / S / D</b> keys</li>
+        <li>Or use <b>Arrow Keys</b></li>
+        <li>On mobile: use on-screen buttons</li>
+        <li>Tap & drag to rotate the camera</li>
+      </ul>
+      <div class="chip-container">
+        <a href="https://umapathik.vercel.app/" target="_blank"
+          >🌐 Visit My Website</a
+        >
+        <a
+          href="https://github.com/Umapathikrishnan/ThreeJSPark"
+          target="_blank"
+          >📦 View Project on GitHub</a
+        >
+      </div>
+    </div>
+    <div id="mobileControls" class="mobile-controls hidden">
+      <div class="row">
+        <button id="btnUp">⬆️</button>
+      </div>
+      <div class="row">
+        <button id="btnLeft">⬅️</button>
+        <button id="btnRight">➡️</button>
+      </div>
+      <div class="row">
+        <button id="btnDown">⬇️</button>
+      </div>
     </div>
 
     <script src="./main.js" type="module"></script>

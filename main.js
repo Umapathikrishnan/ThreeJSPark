@@ -2,6 +2,16 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
+// detect mobile
+const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+if (isMobile) {
+  document.getElementById("mobileControls").classList.remove("hidden");
+}
+
+// Load jump sound
+const jumpSound = new Audio("./assets/jump.mp3");
+jumpSound.volume = 0.1; // adjust volume
+
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 // scene config
@@ -20,12 +30,6 @@ const camera = new THREE.OrthographicCamera(
   500
 );
 
-// const camera = new THREE.PerspectiveCamera(
-//   75,
-//   size.width / size.height,
-//   0.1,
-//   1000
-// );
 camera.position.z = -67;
 camera.position.y = 39;
 camera.position.x = -13;
@@ -42,19 +46,6 @@ renderer.shadowMap.type = 3;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.5;
 
-//create sphere to make it interactive on click add name
-const sphereGeometry = new THREE.SphereGeometry(2, 32, 32);
-const sphereMaterial = new THREE.MeshStandardMaterial({ color: 0x0077ff });
-const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-sphere.position.set(10, 5, 0);
-sphere.castShadow = true;
-sphere.receiveShadow = true;
-sphere.name = "interactiveSphere";
-sphere.material.metalness = 0.5;
-sphere.material.roughness = 0.2;
-
-scene.add(sphere);
-
 const loader = new GLTFLoader();
 let character = {
   instanceof: null,
@@ -64,15 +55,64 @@ let character = {
   moveDuration: 250,
   isMoving: false,
 };
+
+let infoObject;
+
+new GLTFLoader();
+loader.load("./assets/chatBubble.glb", function (glb) {
+  infoObject = glb.scene;
+  infoObject.name = "chatBubble";
+  infoObject.position.set(10, 20, 0);
+  infoObject.rotation.x = Math.PI / 2; // modified to face camera
+
+  infoObject.traverse((child) => {
+    if (child.isMesh) {
+      child.castShadow = true;
+      child.receiveShadow = true;
+      child.name = "chatBubble";
+      child.material.metalness = 0.3;
+      child.material.roughness = 0.7;
+    }
+  });
+  gsap.to(infoObject.rotation, {
+    z: "+=6.283", // 2π = 360°
+    duration: 6,
+    ease: "none",
+    repeat: -1,
+  });
+
+  gsap.to(infoObject.scale, {
+    x: 1.15,
+    y: 1.15,
+    z: 1.15,
+    duration: 2,
+    yoyo: true,
+    repeat: -1,
+    ease: "power1.inOut",
+  });
+
+  // Optional float animation
+  gsap.to(infoObject.position, {
+    y: infoObject.position.y + 1.5,
+    duration: 2,
+    yoyo: true,
+    repeat: -1,
+    ease: "sine.inOut",
+  });
+
+  scene.add(infoObject);
+});
+
 // Optional: Provide a DRACOLoader instance to decode compressed mesh data
 loader.load(
-  "./ThreeJSSitev1.glb",
+  "./assets/park.glb",
   function (glb) {
     // Add the loaded scene to your Three.js scene
     glb.scene.traverse(function (child) {
       console.log(child.name);
       if (child.name === "Plane002") {
         character.instanceof = child;
+        character.instanceof.position.y -= 3.5; // My character initial position adjustment
       }
       if (child.isMesh) {
         child.castShadow = true;
@@ -126,35 +166,90 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(size.width, size.height);
 }
+
 addEventListener("resize", onWindowResize, false);
 
 function onPointerMove(event) {
-  // calculate pointer position in normalized device coordinates
-  // (-1 to +1) for both components
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
   pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 }
-const modal = document.getElementById("modal");
-function renderRayCast() {
-  // update the picking ray with the camera and pointer position
-  raycaster.setFromCamera(pointer, camera);
 
-  // calculate objects intersecting the picking ray
-  const intersects = raycaster.intersectObjects(scene.children, true);
-  for (let i = 0; i < intersects.length; i++) {
-    // intersects[i].object.material.color.set(0xff0000);
-    if (intersects[i].object.name === "interactiveSphere") {
-      //open modal on click
-      document.body.style.cursor = "pointer";
-      modal.style.display = "block";
+const btnUp = document.getElementById("btnUp");
+const btnDown = document.getElementById("btnDown");
+const btnLeft = document.getElementById("btnLeft");
+const btnRight = document.getElementById("btnRight");
+
+function mobileMove(dir) {
+  if (!character.isMoving) {
+    let targetPosition = new THREE.Vector3().copy(
+      character.instanceof.position
+    );
+    let targetRotation = 0;
+
+    if (dir === "up") {
+      targetPosition.x += character.moveDistance;
+      targetRotation = Math.PI / 2;
     }
+    if (dir === "down") {
+      targetPosition.x -= character.moveDistance;
+      targetRotation = -Math.PI / 2;
+    }
+    if (dir === "left") {
+      targetPosition.z -= character.moveDistance;
+      targetRotation = Math.PI;
+    }
+    if (dir === "right") {
+      targetPosition.z += character.moveDistance;
+      targetRotation = 0;
+    }
+
+    moveCharacter(targetPosition, targetRotation);
   }
 }
+
+// attach events
+btnUp.addEventListener("touchstart", () => mobileMove("up"));
+btnDown.addEventListener("touchstart", () => mobileMove("down"));
+btnLeft.addEventListener("touchstart", () => mobileMove("left"));
+btnRight.addEventListener("touchstart", () => mobileMove("right"));
+
+const modal = document.getElementById("modal");
+let hoveringSphere = false;
+
+function renderRayCast() {
+  raycaster.setFromCamera(pointer, camera);
+  const intersects = raycaster.intersectObjects(scene.children, true);
+
+  let sphereHovered = false;
+
+  for (let i = 0; i < intersects.length; i++) {
+    if (intersects[i].object.name === "chatBubble") {
+      sphereHovered = true;
+
+      if (!hoveringSphere) {
+        hoveringSphere = true;
+        document.body.style.cursor = "pointer";
+
+        // OPEN MODAL
+        modal.classList.remove("hidden");
+        modal.classList.add("visible");
+      }
+    }
+  }
+
+  // restore cursor (but DO NOT close modal)
+  if (!sphereHovered) {
+    document.body.style.cursor = "default";
+  }
+}
+
 // closeModal
 
 function moveCharacter(targetPosition, targetRotation) {
   character.isMoving = true;
 
+  jumpSound.currentTime = 0;
+  jumpSound.play();
   const t1 = gsap.to(character.instanceof.position, {
     x: targetPosition.x,
     z: targetPosition.z,
@@ -188,38 +283,41 @@ document.addEventListener("keydown", (event) => {
   if (character.isMoving) return;
   let targetPosition = new THREE.Vector3().copy(character.instanceof.position);
   let targetRotation = 0;
-  switch (event.key) {
+  switch (event.key.toLowerCase()) {
     case "a":
     case "arrowleft":
       targetPosition.z -= character.moveDistance;
       targetRotation = Math.PI;
       break;
+
     case "d":
     case "arrowright":
       targetPosition.z += character.moveDistance;
       targetRotation = 0;
       break;
+
     case "w":
     case "arrowup":
       targetPosition.x += character.moveDistance;
       targetRotation = Math.PI / 2;
       break;
+
     case "s":
     case "arrowdown":
       targetPosition.x -= character.moveDistance;
       targetRotation = -Math.PI / 2;
       break;
-    default:
-      break;
   }
+
   moveCharacter(targetPosition, targetRotation);
 });
 
-const closeModal = document.getElementById("closeModal");
 closeModal.onclick = function () {
-  modal.style.display = "none";
-  document.body.style.cursor = "default";
+  modal.classList.add("hidden");
+  modal.classList.remove("visible");
+  hoveringSphere = false; // reset so hover can open again
 };
+
 window.addEventListener("pointermove", onPointerMove);
 
 //controls -orbit
